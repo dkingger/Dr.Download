@@ -1,3 +1,7 @@
+<div style="display: flex; align-items: center; ">
+  <img src="docs/logo.png" alt="DRDownloader" width="300"/>
+</div>
+
 # 🎬 DR Downloader  
 
 En selvhostet downloader til DR TV, der henter både **video + lyd**, fletter dem til én MP4-fil og giver dig et simpelt webinterface til at styre alle downloads.
