@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Log</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #111; color: #0f0; }
+        h1 { font-family: Arial, sans-serif; color: #fff; margin-bottom: 10px; }
+
+        .toplinks {
+            margin-bottom: 15px;
+        }
+        .toplinks a {
+            color: #8cf;
+            text-decoration: none;
+            margin-right: 20px;
+        }
+        .toplinks a:hover {
+            text-decoration: underline;
+        }
+
+        .logbox {
+            background: #000;
+            padding: 10px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Server-log (seneste 200 linjer)</h1>
+
+<div class="toplinks">
+    <a href="{{ url_for('commands_page') }}">📘 Kommandoer</a>
+    <a href="{{ url_for('index') }}">🏠 Forside</a>
+    <a href="{{ url_for('jobs_page') }}">📥 Downloads</a>
+</div>
+
+<div class="logbox">
+{% for line in log_lines %}
+{{ line }}
+{% endfor %}
+</div>
+
+</body>
+</html>

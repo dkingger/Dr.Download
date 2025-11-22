@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="da">
+<head>
+    <meta charset="utf-8">
+    <title>Aktive downloads – DR.dk Downloader</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #111;
+            color: #f5f5f5;
+        }
+        .wrap {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            margin-top: 0.5em;
+            margin-bottom: 0.2em;
+        }
+        p {
+            margin-top: 0.2em;
+            opacity: 0.8;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1em;
+        }
+        th, td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #333;
+            text-align: left;
+            vertical-align: middle;
+        }
+        th {
+            background: #222;
+        }
+        .progress-outer {
+            width: 100%;
+            background: #222;
+            border-radius: 4px;
+            overflow: hidden;
+            height: 12px;
+        }
+        .progress-inner {
+            height: 12px;
+            width: 0;
+            background: #4caf50;
+            transition: width 0.2s linear;
+        }
+        .status-text {
+            font-size: 0.9em;
+        }
+        button {
+            padding: 6px 12px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        button[disabled] {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-download {
+            background: #1976d2;
+            color: #fff;
+        }
+        .header-links {
+            margin-top: 0.5em;
+        }
+        .header-links a {
+            color: #9cf;
+            margin-right: 1em;
+            text-decoration: none;
+        }
+        .header-links a:hover {
+            text-decoration: underline;
+        }
+        .empty {
+            margin-top: 2em;
+            opacity: 0.7;
+        }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <h1>Aktive og tidligere downloads</h1>
+    <div class="header-links">
+        <a href="{{ url_for('index') }}">Tilbage til forsiden</a>
+        <a href="{{ url_for('log_page') }}">Se log</a>
+    </div>
+    <p>Her kan du følge med i downloads og hente filer, når de er færdige.</p>
+
+    {% if not jobs %}
+        <p class="empty">Der er ingen downloads endnu.</p>
+    {% else %}
+        <table>
+            <thead>
+            <tr>
+                <th>Titel / URL</th>
+                <th>Status</th>
+                <th>Fremskridt</th>
+                <th>Handling</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for job in jobs %}
+                <tr data-job-id="{{ job.id }}">
+                    <td>
+                        {{ job.title or job.url }}
+                    </td>
+                    <td class="status-text">
+                        {{ job.phase }}
+                    </td>
+                    <td>
+                        <div class="progress-outer">
+                            <div class="progress-inner"
+                                 style="width: {{ (job.progress or 0) * 100 | int }}%;"></div>
+                        </div>
+                    </td>
+                    <td>
+                        <button
+                            class="btn-download"
+                            data-job-id="{{ job.id }}"
+                            {% if job.phase != 'finished' %}disabled{% endif %}>
+                            Download
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    {% endif %}
+</div>
+
+<script>
+    function phaseToText(phase) {
+        switch (phase) {
+            case "queued": return "I kø";
+            case "downloading_video": return "Downloader video";
+            case "downloading_audio": return "Downloader lyd";
+            case "processing": return "Behandler / fletter";
+            case "finished": return "Klar til download";
+            case "downloaded": return "Downloadet (fil ryddet op)";
+            case "error": return "Fejl";
+            default: return phase || "";
+        }
+    }
+
+    function updateAllJobs() {
+        const rows = document.querySelectorAll("tr[data-job-id]");
+        rows.forEach(row => {
+            const jobId = row.dataset.jobId;
+            fetch("/status/" + jobId)
+                .then(r => r.ok ? r.json() : null)
+                .then(data => {
+                    if (!data || data.error) return;
+
+                    const statusCell = row.querySelector(".status-text");
+                    const progressInner = row.querySelector(".progress-inner");
+                    const btn = row.querySelector(".btn-download");
+
+                    statusCell.textContent = phaseToText(data.phase);
+                    if (progressInner && typeof data.progress === "number") {
+                        progressInner.style.width = data.progress + "%";
+                    }
+
+                    if (btn) {
+                        btn.disabled = data.phase !== "finished";
+                    }
+                })
+                .catch(() => {});
+        });
+    }
+
+    // Opdater hvert sekund
+    setInterval(updateAllJobs, 1000);
+    updateAllJobs();
+
+    // Download-knapper
+    document.querySelectorAll(".btn-download").forEach(btn => {
+        btn.addEventListener("click", () => {
+            const jobId = btn.dataset.jobId;
+            if (!jobId) return;
+            window.location.href = "/download/" + jobId;
+        });
+    });
+</script>
+</body>
+</html>

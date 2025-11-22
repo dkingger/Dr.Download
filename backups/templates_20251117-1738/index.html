@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <title>DR.dk Downloader</title>
+</head>
+<body>
+    <h1>DR.dk Downloader</h1>
+
+    <form id="downloadForm">
+        <input type="text" id="urlInput" name="url" placeholder="Indsæt link fra dr.dk…" style="width:400px" required>
+        <button type="submit" id="downloadBtn">Start download</button>
+    </form>
+
+    <div id="statusArea" style="margin-top:20px; display:none;">
+        <ol>
+            <li id="step-queued">Kø</li>
+            <li id="step-downloading_video">Henter video</li>
+            <li id="step-downloading_audio">Henter lyd</li>
+            <li id="step-processing">Behandler</li>
+            <li id="step-finished">Færdig</li>
+        </ol>
+
+        <progress id="progressBar" value="0" max="100" style="width:400px;"></progress>
+        <span id="progressPercent">0%</span>
+    </div>
+
+	<p style="margin-top:20px;">
+    		<a href="/log" target="_blank">Se log</a> |
+    		<a href="/history" target="_blank">Se historik</a>
+	</p>
+
+    <script>
+        const form = document.getElementById('downloadForm');
+        const urlInput = document.getElementById('urlInput');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const statusArea = document.getElementById('statusArea');
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+
+        let currentJobId = null;
+
+        const steps = [
+            'queued',
+            'downloading_video',
+            'downloading_audio',
+            'processing',
+            'finished'
+        ];
+
+        function updatePhase(phase) {
+            steps.forEach(s => {
+                const el = document.getElementById('step-' + s);
+                if (!el) return;
+                el.style.fontWeight = (s === phase) ? 'bold' : 'normal';
+            });
+        }
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const url = urlInput.value.trim();
+            if (!url) return;
+
+            downloadBtn.disabled = true;
+            statusArea.style.display = 'block';
+            progressBar.value = 0;
+            progressPercent.textContent = '0%';
+            updatePhase('queued');
+
+            const formData = new FormData();
+            formData.append('url', url);
+
+            fetch('/start', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Fejl: ' + data.error);
+                    downloadBtn.disabled = false;
+                    return;
+                }
+                currentJobId = data.job_id;
+                pollStatus();
+            })
+            .catch(err => {
+                alert('Fejl ved start: ' + err);
+                downloadBtn.disabled = false;
+            });
+        });
+
+        function pollStatus() {
+            if (!currentJobId) return;
+
+            fetch('/status/' + currentJobId)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('Fejl: ' + data.error);
+                        downloadBtn.disabled = false;
+                        currentJobId = null;
+                        return;
+                    }
+
+                    const phase = data.phase || 'queued';
+                    updatePhase(phase);
+
+                    if (typeof data.progress === 'number') {
+                        progressBar.value = data.progress;
+                        progressPercent.textContent = data.progress.toFixed(1) + '%';
+                    }
+
+                    if (phase === 'finished') {
+                        window.location = '/fetch/' + currentJobId;
+                        downloadBtn.disabled = false;
+                        currentJobId = null;
+                        return;
+                    }
+
+                    if (phase === 'error') {
+                        alert('Download fejlede: ' + (data.error || 'ukendt fejl'));
+                        downloadBtn.disabled = false;
+                        currentJobId = null;
+                        return;
+                    }
+
+                    setTimeout(pollStatus, 1000);
+                })
+                .catch(err => {
+                    console.error(err);
+                    setTimeout(pollStatus, 2000);
+                });
+        }
+    </script>
+</body>
+</html>

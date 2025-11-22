@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Kommandoer</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #111;
+        color: #eee;
+        padding: 20px;
+    }
+
+    h1 {
+        color: #fff;
+        margin-bottom: 20px;
+    }
+
+    a { color: #8cf; }
+
+    .cmd-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    .cmd-table th, .cmd-table td {
+        padding: 12px 10px;
+        vertical-align: top;
+    }
+
+    .cmd-table th {
+        color: #ccc;
+        border-bottom: 2px solid #333;
+        text-align: left;
+        font-size: 14px;
+        text-transform: uppercase;
+    }
+
+    .cmd-table tr:nth-child(even) {
+        background: #181818;
+    }
+
+    .cmd-table td .cmd {
+        color: #0f0;
+        font-family: monospace;
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    .cmd-table td .desc {
+        color: #aaa;
+        font-size: 14px;
+    }
+</style>
+
+</head>
+<body>
+
+<h1>Kommandøer</h1>
+
+<table class="cmd-table">
+    <thead>
+        <tr>
+            <th>Kommando</th>
+            <th>Navn</th>
+            <th>Forklaring</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        <tr>
+            <td><span class="cmd">cd /opt/yt-downloader</span></td>
+            <td>Mappen med yt-dnl</td>
+            <td class="desc">Går til mappen med yt-downloader</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">df -h</span></td>
+            <td>Se diskforbrug</td>
+            <td class="desc">Viser total diskplads, brugt og ledig.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">du -h /tmp | sort -h | tail -30</span></td>
+            <td>Se hvad der fylder i /tmp</td>
+            <td class="desc">Lister de største mapper og filer i /tmp.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">pkill -f server.py</span></td>
+            <td>Stop serveren</td>
+            <td class="desc">Stopper Flask serveren, hvis den kører.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">nohup ./start.sh &</span></td>
+            <td>Start serveren</td>
+            <td class="desc">Starter Flask serveren i baggrunden uden at lukke med SSH-sessionen.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">tail -f logs/app.log</span></td>
+            <td>Se log live</td>
+            <td class="desc">Viser logfilen i realtid.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">watch -n 1 df -h</span></td>
+            <td>Overvåg diskforbrug</td>
+            <td class="desc">Opdaterer diskforbruget hvert sekund.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">watch -n 1 'du -sh /tmp/*'</span></td>
+            <td>Overvåg /tmp</td>
+            <td class="desc">Viser alle jobmapper og deres størrelse live.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">watch -n 1 cat jobs.json</span></td>
+            <td>Overvåg job-database</td>
+            <td class="desc">Følg jobs.json i realtid.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">watch -n 1 'tail -20 logs/app.log'</span></td>
+            <td>Live log</td>
+            <td class="desc">Viser de nyeste loglinjer live, opdateret hvert sekund.</td>
+        </tr>
+
+        <tr>
+            <td><span class="cmd">cd /opt/yt-downloader/templates
+				  nano index.html</span></td>
+            <td>Ret i index filen</td>
+            <td class="desc">Skifter bibliotek til mappen hvor index filen ligger og starter Nano</td>
+        </tr>
+
+
+
+
+    </tbody>
+</table>
+
+
+</body>
+</html>

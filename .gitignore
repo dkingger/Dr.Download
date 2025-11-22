@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+
+logs/
+*.log
+
+history.json
+jobs.json
+
+.DS_Store
+*.swp
