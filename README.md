@@ -1,5 +1,5 @@
 <div style="display: flex; align-items: center; ">
-  <img src="docs/logo.png" alt="DRDownloader" width="300"/>
+  <img src="logo.png" alt="DRDownloader" width="300"/>
 </div>
 
 # 🎬 DR Downloader  
